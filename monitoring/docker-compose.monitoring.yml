@@ -33,11 +33,16 @@ services:
     volumes:
       - ./data/grafana:/var/lib/grafana
       - ./grafana-dashboard.json:/var/lib/grafana/dashboards/iac-dashboard.json:ro
+      - ./grafana.ini:/etc/grafana/grafana.ini:ro
+    env_file:
+      - .env
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/iac-dashboard.json
+      - GF_AUTH_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GF_AUTH_GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     networks:
       - iac-monitoring
     labels:
