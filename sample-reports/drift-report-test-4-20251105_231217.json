@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-11-05T23:12:17.149195",
+  "environment": "dev",
+  "drift_detected": false,
+  "summary": {
+    "total_issues": 0,
+    "high_severity": 0,
+    "medium_severity": 0,
+    "low_severity": 0
+  },
+  "drift_details": [],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 4,
+      "networks": 1,
+      "volumes": 2
+    },
+    "actual": {
+      "containers": 4,
+      "containers_running": 4,
+      "networks": 1,
+      "volumes": 2
+    }
+  }
+}

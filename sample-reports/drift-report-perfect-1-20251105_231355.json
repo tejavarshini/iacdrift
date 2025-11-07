@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-11-05T23:13:55.751812",
+  "environment": "production",
+  "drift_detected": false,
+  "summary": {
+    "total_issues": 0,
+    "high_severity": 0,
+    "medium_severity": 0,
+    "low_severity": 0
+  },
+  "drift_details": [],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 5,
+      "networks": 2,
+      "volumes": 3,
+      "images": 4
+    },
+    "actual": {
+      "containers": 5,
+      "containers_running": 5,
+      "containers_healthy": 5,
+      "networks": 2,
+      "volumes": 3,
+      "load_balancer_status": "healthy",
+      "database_status": "online",
+      "api_status": "responsive"
+    }
+  },
+  "health_metrics": {
+    "cpu_usage": "12%",
+    "memory_usage": "45%",
+    "disk_usage": "23%",
+    "response_time": "85ms",
+    "uptime": "99.9%"
+  },
+  "raw_data": {
+    "terraform_state_available": true,
+    "docker_state_available": true,
+    "last_check": "2025-11-05T23:13:55.751843",
+    "system_status": "optimal"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "timestamp": "2025-11-05T22:42:17.149134",
+  "environment": "production",
+  "drift_detected": true,
+  "summary": {
+    "total_issues": 3,
+    "high_severity": 2,
+    "medium_severity": 1,
+    "low_severity": 0
+  },
+  "drift_details": [
+    {
+      "type": "NETWORK_CONFIGURATION_DRIFT",
+      "severity": "high",
+      "resource": "main-network",
+      "issue": "Network bridge configuration mismatch",
+      "expected": "bridge mode with subnet 172.20.0.0/16",
+      "actual": "host mode detected"
+    },
+    {
+      "type": "SECURITY_POLICY_DRIFT",
+      "severity": "high",
+      "resource": "web-container-security",
+      "issue": "Container running with elevated privileges",
+      "expected": "non-privileged mode",
+      "actual": "privileged mode enabled"
+    },
+    {
+      "type": "RESOURCE_LIMITS_DRIFT",
+      "severity": "medium",
+      "resource": "database-container-limits",
+      "issue": "Memory limit exceeded configuration",
+      "expected": "2GB memory limit",
+      "actual": "4GB memory limit"
+    }
+  ],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 4,
+      "networks": 1,
+      "volumes": 2
+    },
+    "actual": {
+      "containers": 4,
+      "containers_running": 3,
+      "networks": 1,
+      "volumes": 2
+    }
+  }
+}

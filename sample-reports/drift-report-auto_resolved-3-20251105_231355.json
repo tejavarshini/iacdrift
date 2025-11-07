@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-11-05T23:03:55.751964",
+  "environment": "staging",
+  "drift_detected": false,
+  "summary": {
+    "total_issues": 0,
+    "high_severity": 0,
+    "medium_severity": 0,
+    "low_severity": 0,
+    "resolved_issues": 1
+  },
+  "drift_details": [],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 3,
+      "networks": 1,
+      "volumes": 1
+    },
+    "actual": {
+      "containers": 3,
+      "containers_running": 3,
+      "networks": 1,
+      "volumes": 1
+    }
+  },
+  "resolved_issues": [
+    {
+      "type": "CONTAINER_RESTART_RESOLVED",
+      "severity": "medium",
+      "resource": "api-service",
+      "issue": "Container was restarted due to health check failure",
+      "resolution": "Auto-recovery successful - container now healthy",
+      "resolved_at": "2025-11-05T23:11:55.751968"
+    }
+  ]
+}

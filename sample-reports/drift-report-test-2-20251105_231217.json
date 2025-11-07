@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-11-05T22:57:17.149183",
+  "environment": "staging",
+  "drift_detected": true,
+  "summary": {
+    "total_issues": 2,
+    "high_severity": 0,
+    "medium_severity": 2,
+    "low_severity": 0
+  },
+  "drift_details": [
+    {
+      "type": "ENVIRONMENT_VARIABLE_DRIFT",
+      "severity": "medium",
+      "resource": "web-app-config",
+      "issue": "Environment variable mismatch",
+      "expected": "DEBUG=false",
+      "actual": "DEBUG=true"
+    },
+    {
+      "type": "PORT_MAPPING_DRIFT",
+      "severity": "medium",
+      "resource": "api-service-ports",
+      "issue": "Port mapping configuration changed",
+      "expected": "8080:80",
+      "actual": "8081:80"
+    }
+  ],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 3,
+      "networks": 1,
+      "volumes": 1
+    },
+    "actual": {
+      "containers": 3,
+      "containers_running": 3,
+      "networks": 1,
+      "volumes": 1
+    }
+  }
+}

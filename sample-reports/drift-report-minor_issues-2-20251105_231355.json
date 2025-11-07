@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-11-05T23:08:55.751846",
+  "environment": "production",
+  "drift_detected": true,
+  "summary": {
+    "total_issues": 2,
+    "high_severity": 0,
+    "medium_severity": 0,
+    "low_severity": 2
+  },
+  "drift_details": [
+    {
+      "type": "PERFORMANCE_OPTIMIZATION",
+      "severity": "low",
+      "resource": "web-server-optimization",
+      "issue": "Container could use resource optimization",
+      "expected": "Standard resource allocation",
+      "actual": "Could benefit from CPU limit adjustment for better performance",
+      "recommendation": "Consider updating CPU limits for optimal performance"
+    },
+    {
+      "type": "IMAGE_UPDATE_AVAILABLE",
+      "severity": "low",
+      "resource": "database-image",
+      "issue": "Newer image version available",
+      "expected": "postgres:13",
+      "actual": "postgres:13.1 (newer version 13.2 available)",
+      "recommendation": "Update to latest patch version for security improvements"
+    }
+  ],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 4,
+      "networks": 1,
+      "volumes": 2
+    },
+    "actual": {
+      "containers": 4,
+      "containers_running": 4,
+      "networks": 1,
+      "volumes": 2
+    }
+  }
+}
