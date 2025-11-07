@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-11-07T06:05:49.050261",
+  "environment": "dev",
+  "drift_detected": false,
+  "summary": {
+    "total_issues": 0,
+    "high_severity": 0,
+    "medium_severity": 0,
+    "low_severity": 0
+  },
+  "drift_details": [],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 0,
+      "networks": 0,
+      "volumes": 0,
+      "images": 0
+    },
+    "actual": {
+      "containers": 4,
+      "containers_running": 4,
+      "networks": 1,
+      "volumes": 1
+    }
+  },
+  "raw_data": {
+    "terraform_state_available": false,
+    "docker_state_available": true,
+    "last_check": "2025-11-07T06:05:49.050297"
+  }
+}

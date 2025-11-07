@@ -10,24 +10,78 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 import glob
+import docker
 
 # Add parent directories to path for imports
-sys.path.append(str(Path(__file__).parent.parent / 'scripts' / 'drift-detection'))
+script_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(script_dir / 'scripts' / 'drift-detection'))
 
 from flask import Flask, render_template, jsonify, request
 try:
     from drift_detector import DriftDetector
-except ImportError:
-    # Fallback - create a minimal DriftDetector for testing
+    print("✅ Successfully imported DriftDetector")
+except ImportError as e:
+    print(f"⚠️  Failed to import DriftDetector: {e}")
+    print("Using fallback DriftDetector with real Docker API")
+    # Fallback - create a DriftDetector that uses Docker API directly
     class DriftDetector:
         def __init__(self, config_file):
             self.config_file = config_file
+            try:
+                self.docker_client = docker.from_env()
+            except Exception as e:
+                print(f"Error connecting to Docker: {e}")
+                self.docker_client = None
         
         def get_terraform_state(self):
-            return {'expected_infrastructure': {'containers': {}, 'networks': {}, 'volumes': {}}}
+            return None
         
         def get_docker_state(self):
-            return {'actual_infrastructure': {'containers': {}, 'networks': {}, 'volumes': {}}}
+            """Get actual Docker state using Docker API"""
+            if not self.docker_client:
+                return None
+            
+            try:
+                containers = {}
+                for container in self.docker_client.containers.list(all=True):
+                    containers[container.name] = {
+                        'name': container.name,
+                        'image': container.image.tags[0] if container.image.tags else container.image.id,
+                        'status': container.status,
+                        'running': container.status == 'running',
+                        'ports': container.ports,
+                        'networks': list(container.attrs['NetworkSettings']['Networks'].keys()),
+                        'health_status': container.attrs.get('State', {}).get('Health', {}).get('Status', 'none')
+                    }
+                
+                networks = {}
+                for network in self.docker_client.networks.list():
+                    if network.name not in ['bridge', 'host', 'none']:
+                        networks[network.name] = {
+                            'name': network.name,
+                            'driver': network.attrs.get('Driver', ''),
+                            'subnet': network.attrs.get('IPAM', {}).get('Config', [{}])[0].get('Subnet', ''),
+                            'containers': len(network.attrs.get('Containers', {}))
+                        }
+                
+                volumes = {}
+                for volume in self.docker_client.volumes.list():
+                    volumes[volume.name] = {
+                        'name': volume.name,
+                        'driver': volume.attrs.get('Driver', ''),
+                        'mountpoint': volume.attrs.get('Mountpoint', '')
+                    }
+                
+                return {
+                    'actual_infrastructure': {
+                        'containers': containers,
+                        'networks': networks,
+                        'volumes': volumes
+                    }
+                }
+            except Exception as e:
+                print(f"Error getting Docker state: {e}")
+                return None
         
         def analyze_drift(self, terraform_state, docker_state):
             return False, []
@@ -353,4 +407,4 @@ if __name__ == '__main__':
     dashboard.logs_dir.mkdir(exist_ok=True)
     
     # Run the Flask app
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

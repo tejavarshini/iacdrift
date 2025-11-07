@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-11-07T06:41:28.951949",
+  "environment": "dev",
+  "drift_detected": true,
+  "summary": {
+    "total_issues": 1,
+    "high_severity": 1,
+    "medium_severity": 0,
+    "low_severity": 0
+  },
+  "drift_details": [
+    {
+      "type": "container_status_drift",
+      "severity": "high",
+      "resource": "iac-drift-detection-web-1-dev",
+      "message": "Container iac-drift-detection-web-1-dev is not running",
+      "expected": "running",
+      "actual": "exited"
+    }
+  ],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 4,
+      "networks": 1,
+      "volumes": 1,
+      "images": 2
+    },
+    "actual": {
+      "containers": 4,
+      "containers_running": 3,
+      "networks": 1,
+      "volumes": 1
+    }
+  },
+  "raw_data": {
+    "terraform_state_available": true,
+    "docker_state_available": true,
+    "last_check": "2025-11-07T06:41:28.951967"
+  }
+}

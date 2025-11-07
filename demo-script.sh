@@ -92,7 +92,3 @@ echo "✅ Real-time monitoring"
 echo "✅ Complete audit trail"
 echo "✅ Zero-downtime remediation"
 echo
-echo "🎤 Tell your ma'am: 'This system prevents infrastructure"
-echo "   problems before they impact users by automatically"
-echo "   detecting and fixing unauthorized changes!'"
-echo
