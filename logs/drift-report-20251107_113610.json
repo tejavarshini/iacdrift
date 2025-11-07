@@ -1,0 +1,225 @@
+{
+  "timestamp": "2025-11-07T06:06:10.930761",
+  "environment": "dev",
+  "drift_detected": true,
+  "summary": {
+    "total_issues": 6,
+    "high_severity": 0,
+    "medium_severity": 4,
+    "low_severity": 2
+  },
+  "drift_details": [
+    {
+      "type": "unexpected_container",
+      "severity": "medium",
+      "resource": "iac-drift-detection-loadbalancer-dev",
+      "message": "Unexpected container iac-drift-detection-loadbalancer-dev found",
+      "expected": null,
+      "actual": {
+        "name": "iac-drift-detection-loadbalancer-dev",
+        "image": "sha256:b3c656d55d7ad751196f21b7fd2e8d4da9cb430e32f646adcf92441b72f82b14",
+        "status": "running",
+        "running": true,
+        "ports": [
+          {
+            "internal": 80,
+            "external": 8081,
+            "protocol": "tcp",
+            "ip": "0.0.0.0"
+          }
+        ],
+        "env": [
+          "ENVIRONMENT=dev",
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "NGINX_VERSION=1.29.3",
+          "PKG_RELEASE=1",
+          "DYNPKG_RELEASE=1",
+          "NJS_VERSION=0.9.4",
+          "NJS_RELEASE=1"
+        ],
+        "networks": [
+          "iac-drift-detection-network-dev"
+        ],
+        "restart_policy": {
+          "Name": "unless-stopped",
+          "MaximumRetryCount": 0
+        },
+        "created": "2025-10-31T14:27:09.437833342Z",
+        "started_at": "2025-10-31T14:27:09.487257967Z",
+        "health_status": "none"
+      }
+    },
+    {
+      "type": "unexpected_container",
+      "severity": "medium",
+      "resource": "iac-drift-detection-database-dev",
+      "message": "Unexpected container iac-drift-detection-database-dev found",
+      "expected": null,
+      "actual": {
+        "name": "iac-drift-detection-database-dev",
+        "image": "sha256:12835a728fbc7d92e634d3105982c5ed2e78910a711be8cc40ae3b997bb34ddc",
+        "status": "running",
+        "running": true,
+        "ports": [
+          {
+            "internal": 5432,
+            "external": 5432,
+            "protocol": "tcp",
+            "ip": "0.0.0.0"
+          }
+        ],
+        "env": [
+          "POSTGRES_USER=appuser",
+          "POSTGRES_PASSWORD=changeme123",
+          "POSTGRES_DB=appdb",
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=13",
+          "PG_VERSION=13.22",
+          "PG_SHA256=d36d83dc89e625502cf6fb1d0529642ba1266bd614b4e4a41cefd1dddcf09080",
+          "DOCKER_PG_LLVM_DEPS=llvm19-dev \t\tclang19",
+          "PGDATA=/var/lib/postgresql/data"
+        ],
+        "networks": [
+          "iac-drift-detection-network-dev"
+        ],
+        "restart_policy": {
+          "Name": "unless-stopped",
+          "MaximumRetryCount": 0
+        },
+        "created": "2025-10-31T14:26:32.976039547Z",
+        "started_at": "2025-10-31T14:26:33.295876464Z",
+        "health_status": "none"
+      }
+    },
+    {
+      "type": "unexpected_container",
+      "severity": "medium",
+      "resource": "iac-drift-detection-web-2-dev",
+      "message": "Unexpected container iac-drift-detection-web-2-dev found",
+      "expected": null,
+      "actual": {
+        "name": "iac-drift-detection-web-2-dev",
+        "image": "sha256:b3c656d55d7ad751196f21b7fd2e8d4da9cb430e32f646adcf92441b72f82b14",
+        "status": "running",
+        "running": true,
+        "ports": [
+          {
+            "internal": 80,
+            "external": 81,
+            "protocol": "tcp",
+            "ip": "0.0.0.0"
+          }
+        ],
+        "env": [
+          "ENVIRONMENT=dev",
+          "CONTAINER_ID=2",
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "NGINX_VERSION=1.29.3",
+          "PKG_RELEASE=1",
+          "DYNPKG_RELEASE=1",
+          "NJS_VERSION=0.9.4",
+          "NJS_RELEASE=1"
+        ],
+        "networks": [
+          "iac-drift-detection-network-dev"
+        ],
+        "restart_policy": {
+          "Name": "unless-stopped",
+          "MaximumRetryCount": 0
+        },
+        "created": "2025-10-31T14:26:09.784922717Z",
+        "started_at": "2025-10-31T14:26:09.926355717Z",
+        "health_status": "none"
+      }
+    },
+    {
+      "type": "unexpected_container",
+      "severity": "medium",
+      "resource": "iac-drift-detection-web-1-dev",
+      "message": "Unexpected container iac-drift-detection-web-1-dev found",
+      "expected": null,
+      "actual": {
+        "name": "iac-drift-detection-web-1-dev",
+        "image": "sha256:b3c656d55d7ad751196f21b7fd2e8d4da9cb430e32f646adcf92441b72f82b14",
+        "status": "running",
+        "running": true,
+        "ports": [
+          {
+            "internal": 80,
+            "external": 80,
+            "protocol": "tcp",
+            "ip": "0.0.0.0"
+          }
+        ],
+        "env": [
+          "ENVIRONMENT=dev",
+          "CONTAINER_ID=1",
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "NGINX_VERSION=1.29.3",
+          "PKG_RELEASE=1",
+          "DYNPKG_RELEASE=1",
+          "NJS_VERSION=0.9.4",
+          "NJS_RELEASE=1"
+        ],
+        "networks": [
+          "iac-drift-detection-network-dev"
+        ],
+        "restart_policy": {
+          "Name": "unless-stopped",
+          "MaximumRetryCount": 0
+        },
+        "created": "2025-10-31T14:26:09.784860634Z",
+        "started_at": "2025-10-31T14:26:09.919539759Z",
+        "health_status": "none"
+      }
+    },
+    {
+      "type": "unexpected_network",
+      "severity": "low",
+      "resource": "iac-drift-detection-network-dev",
+      "message": "Unexpected network iac-drift-detection-network-dev found",
+      "expected": null,
+      "actual": {
+        "name": "iac-drift-detection-network-dev",
+        "driver": "bridge",
+        "subnet": "172.20.0.0/16",
+        "created": "2025-10-31T14:25:53.636592168Z",
+        "containers": 4
+      }
+    },
+    {
+      "type": "unexpected_volume",
+      "severity": "low",
+      "resource": "iac-drift-detection-db-data-dev",
+      "message": "Unexpected volume iac-drift-detection-db-data-dev found",
+      "expected": null,
+      "actual": {
+        "name": "iac-drift-detection-db-data-dev",
+        "driver": "local",
+        "mountpoint": "/var/lib/docker/volumes/iac-drift-detection-db-data-dev/_data",
+        "created": "2025-10-31T14:25:53Z"
+      }
+    }
+  ],
+  "infrastructure_state": {
+    "expected": {
+      "containers": 0,
+      "networks": 0,
+      "volumes": 0,
+      "images": 0
+    },
+    "actual": {
+      "containers": 4,
+      "containers_running": 4,
+      "networks": 1,
+      "volumes": 1
+    }
+  },
+  "raw_data": {
+    "terraform_state_available": true,
+    "docker_state_available": true,
+    "last_check": "2025-11-07T06:06:10.930782"
+  }
+}

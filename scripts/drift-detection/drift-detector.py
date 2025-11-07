@@ -56,8 +56,8 @@ class DriftDetector:
             current_dir = os.getcwd()
             os.chdir(self.terraform_dir)
             
-            # Use the local terraform executable
-            terraform_cmd = '.\\terraform.exe' if os.name == 'nt' else './terraform'
+            # Use terraform from PATH
+            terraform_cmd = 'terraform'
             result = subprocess.run(
                 [terraform_cmd, 'show', '-json'],
                 capture_output=True,
