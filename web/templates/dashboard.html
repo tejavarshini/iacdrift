@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IaC Drift Detection Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-status {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .status-healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-drift {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .content-card h2 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .drift-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .drift-item.severity-high {
+            border-left-color: #dc3545;
+        }
+        
+        .drift-item.severity-medium {
+            border-left-color: #ffc107;
+        }
+        
+        .drift-item.severity-low {
+            border-left-color: #17a2b8;
+        }
+        
+        .drift-type {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .drift-message {
+            color: #666;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .history-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .history-item:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .history-timestamp {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .history-status {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        
+        .no-drift {
+            text-align: center;
+            color: #28a745;
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🔍 IaC Drift Detection Dashboard</h1>
+            <p>Monitor your infrastructure for configuration drift in real-time</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>System Status</h3>
+                <div class="stat-value" id="system-status">Loading...</div>
+                <div class="stat-status status-loading" id="status-badge">Checking...</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Active Containers</h3>
+                <div class="stat-value" id="containers-running">-</div>
+                <div class="stat-status" id="containers-total">of - total</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Networks</h3>
+                <div class="stat-value" id="networks-count">-</div>
+                <div class="stat-status">Infrastructure networks</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Volumes</h3>
+                <div class="stat-value" id="volumes-count">-</div>
+                <div class="stat-status">Storage volumes</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Last Check</h3>
+                <div class="stat-value" id="last-check-time">Never</div>
+                <div class="stat-status" id="last-check-relative">-</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-card">
+                <div class="controls">
+                    <button class="btn" onclick="runCheck()" id="check-btn">🔍 Run Drift Check</button>
+                    <button class="btn" onclick="refreshData()">🔄 Refresh</button>
+                    <button class="btn" onclick="showInfrastructureDetails()">📊 Infrastructure Details</button>
+                </div>
+                
+                <h2>Current Drift Status</h2>
+                <div id="drift-status">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading drift status...
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="drift-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2>Recent Reports</h2>
+                <div id="report-history">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading history...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Infrastructure Details Modal -->
+        <div id="infrastructure-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 30px; max-width: 90%; max-height: 90%; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Infrastructure Details</h2>
+                    <button onclick="closeInfrastructureDetails()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div>
+                        <h3>🐳 Containers</h3>
+                        <div id="container-details">Loading...</div>
+                    </div>
+                    
+                    <div>
+                        <h3>🌐 Networks</h3>
+                        <div id="network-details">Loading...</div>
+                    </div>
+                    
+                    <div>
+                        <h3>💾 Volumes</h3>
+                        <div id="volume-details">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let driftChart = null;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            setInterval(refreshData, 30000); // Refresh every 30 seconds
+        });
+        
+        async function refreshData() {
+            await Promise.all([
+                loadSystemStatus(),
+                loadLatestReport(),
+                loadReportHistory()
+            ]);
+        }
+        
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                updateSystemStatusDisplay(status);
+            } catch (error) {
+                console.error('Error loading system status:', error);
+                document.getElementById('system-status').textContent = 'Error';
+                document.getElementById('status-badge').className = 'stat-status status-error';
+                document.getElementById('status-badge').textContent = 'Connection Error';
+            }
+        }
+        
+        function updateSystemStatusDisplay(status) {
+            const statusElement = document.getElementById('system-status');
+            const badgeElement = document.getElementById('status-badge');
+            const containersRunning = document.getElementById('containers-running');
+            const containersTotal = document.getElementById('containers-total');
+            const networksCount = document.getElementById('networks-count');
+            const volumesCount = document.getElementById('volumes-count');
+            const lastCheckTime = document.getElementById('last-check-time');
+            const lastCheckRelative = document.getElementById('last-check-relative');
+            
+            // System status
+            if (status.status === 'healthy') {
+                statusElement.textContent = '✅ Healthy';
+                badgeElement.className = 'stat-status status-healthy';
+                badgeElement.textContent = 'No Drift Detected';
+            } else if (status.status === 'drift') {
+                statusElement.textContent = '⚠️ Drift';
+                badgeElement.className = 'stat-status status-drift';
+                badgeElement.textContent = `${status.drift_count} Issues Found`;
+            } else {
+                statusElement.textContent = '❌ Error';
+                badgeElement.className = 'stat-status status-error';
+                badgeElement.textContent = 'System Error';
+            }
+            
+            // Infrastructure counts
+            if (status.infrastructure) {
+                const actual = status.infrastructure.actual;
+                const expected = status.infrastructure.expected;
+                
+                containersRunning.textContent = actual.containers_running || 0;
+                containersTotal.textContent = `of ${actual.containers || 0} total`;
+                networksCount.textContent = actual.networks || 0;
+                volumesCount.textContent = actual.volumes || 0;
+                
+                // Update container status to show health info if available
+                if (actual.containers_healthy !== undefined) {
+                    const healthyCount = actual.containers_healthy;
+                    const totalCount = actual.containers;
+                    const healthStatus = healthyCount === totalCount ? '💚' : '⚠️';
+                    containersTotal.innerHTML = `of ${totalCount} total ${healthStatus}`;
+                }
+            }
+            
+            // Last check time
+            if (status.last_check) {
+                const checkTime = new Date(status.last_check);
+                lastCheckTime.textContent = checkTime.toLocaleTimeString();
+                lastCheckRelative.textContent = getRelativeTime(checkTime);
+            }
+        }
+        
+        async function loadLatestReport() {
+            try {
+                const response = await fetch('/api/latest-report');
+                const report = await response.json();
+                
+                updateDriftDisplay(report);
+                updateChart(report);
+            } catch (error) {
+                console.error('Error loading latest report:', error);
+                document.getElementById('drift-status').innerHTML = `
+                    <div class="no-drift">
+                        <p>No drift reports available</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateDriftDisplay(report) {
+            const driftStatusElement = document.getElementById('drift-status');
+            
+            if (!report.drift_detected) {
+                driftStatusElement.innerHTML = `
+                    <div class="no-drift">
+                        <h3>✅ No Drift Detected</h3>
+                        <p>Your infrastructure is in sync with the desired state.</p>
+                        <p>Last checked: ${new Date(report.timestamp).toLocaleString()}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const driftHtml = report.drift_details.map(drift => `
+                <div class="drift-item severity-${drift.severity}">
+                    <div class="drift-type">${drift.type.replace(/_/g, ' ').toUpperCase()}</div>
+                    <div class="drift-message">${drift.message}</div>
+                    ${drift.resource ? `<div style="font-size: 0.9rem; color: #999; margin-top: 5px;">Resource: ${drift.resource}</div>` : ''}
+                </div>
+            `).join('');
+            
+            driftStatusElement.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h3>⚠️ ${report.drift_details.length} Drift Issue(s) Detected</h3>
+                    <p>Last checked: ${new Date(report.timestamp).toLocaleString()}</p>
+                </div>
+                ${driftHtml}
+            `;
+        }
+        
+        async function loadReportHistory() {
+            try {
+                const response = await fetch('/api/reports?limit=5');
+                const reports = await response.json();
+                
+                updateHistoryDisplay(reports);
+            } catch (error) {
+                console.error('Error loading report history:', error);
+                document.getElementById('report-history').innerHTML = `
+                    <p style="text-align: center; color: #666;">Error loading history</p>
+                `;
+            }
+        }
+        
+        function updateHistoryDisplay(reports) {
+            const historyElement = document.getElementById('report-history');
+            
+            if (reports.length === 0) {
+                historyElement.innerHTML = `
+                    <p style="text-align: center; color: #666;">No reports available</p>
+                `;
+                return;
+            }
+            
+            const historyHtml = reports.map(report => {
+                const timestamp = new Date(report.timestamp);
+                const statusClass = report.drift_detected ? 'status-drift' : 'status-healthy';
+                const statusText = report.drift_detected ? 
+                    `${report.summary.total_issues} issues` : 
+                    'No drift';
+                
+                return `
+                    <div class="history-item">
+                        <div class="history-timestamp">${timestamp.toLocaleString()}</div>
+                        <div class="history-status ${statusClass}">${statusText}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            historyElement.innerHTML = historyHtml;
+        }
+        
+        function updateChart(report) {
+            const ctx = document.getElementById('drift-chart').getContext('2d');
+            
+            if (driftChart) {
+                driftChart.destroy();
+            }
+            
+            const severityCounts = {
+                'High': report.summary?.high_severity || 0,
+                'Medium': report.summary?.medium_severity || 0,
+                'Low': report.summary?.low_severity || 0
+            };
+            
+            driftChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(severityCounts),
+                    datasets: [{
+                        data: Object.values(severityCounts),
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Drift Issues by Severity'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        async function runCheck() {
+            const btn = document.getElementById('check-btn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Checking...';
+            
+            try {
+                const response = await fetch('/api/run-check');
+                const result = await response.json();
+                
+                if (result.success) {
+                    await refreshData();
+                } else {
+                    alert('Drift check failed: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error running drift check: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Run Drift Check';
+            }
+        }
+        
+        function getRelativeTime(date) {
+            const now = new Date();
+            const diff = (now - date) / 1000; // seconds
+            
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            return Math.floor(diff / 86400) + 'd ago';
+        }
+        
+        async function showInfrastructureDetails() {
+            const modal = document.getElementById('infrastructure-modal');
+            modal.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/infrastructure');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateInfrastructureDetails(data.detailed_info);
+                } else {
+                    document.getElementById('container-details').innerHTML = 'Error loading data';
+                    document.getElementById('network-details').innerHTML = 'Error loading data';
+                    document.getElementById('volume-details').innerHTML = 'Error loading data';
+                }
+            } catch (error) {
+                console.error('Error loading infrastructure details:', error);
+            }
+        }
+        
+        function closeInfrastructureDetails() {
+            document.getElementById('infrastructure-modal').style.display = 'none';
+        }
+        
+        function updateInfrastructureDetails(details) {
+            // Update container details
+            const containers = details.containers || [];
+            const containerHtml = containers.length > 0 ? containers.map(container => {
+                const statusColor = container.running ? '#28a745' : '#dc3545';
+                const healthIcon = container.health === 'healthy' ? '💚' : 
+                                  container.health === 'unhealthy' ? '❤️' : '⚪';
+                
+                return `
+                    <div style="background: #f8f9fa; border-left: 4px solid ${statusColor}; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <div style="font-weight: bold;">${container.name}</div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            📦 ${container.image}<br>
+                            🔄 ${container.status} ${container.running ? '(Running)' : '(Stopped)'}<br>
+                            ${healthIcon} Health: ${container.health}<br>
+                            🌐 Ports: ${container.ports}<br>
+                            🔗 Networks: ${container.networks.join(', ') || 'None'}
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<div style="color: #666; text-align: center; padding: 20px;">No containers found</div>';
+            
+            document.getElementById('container-details').innerHTML = containerHtml;
+            
+            // Update network details
+            const networks = details.networks || [];
+            const networkHtml = networks.length > 0 ? networks.map(network => `
+                <div style="background: #f8f9fa; border-left: 4px solid #17a2b8; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    <div style="font-weight: bold;">${network.name}</div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        🔧 Driver: ${network.driver}<br>
+                        🌐 Subnet: ${network.subnet || 'Not specified'}<br>
+                        📦 Containers: ${network.containers}
+                    </div>
+                </div>
+            `).join('') : '<div style="color: #666; text-align: center; padding: 20px;">No networks found</div>';
+            
+            document.getElementById('network-details').innerHTML = networkHtml;
+            
+            // Update volume details
+            const volumes = details.volumes || [];
+            const volumeHtml = volumes.length > 0 ? volumes.map(volume => `
+                <div style="background: #f8f9fa; border-left: 4px solid #6f42c1; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    <div style="font-weight: bold;">${volume.name}</div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        🔧 Driver: ${volume.driver}<br>
+                        📂 Mount: ${volume.mountpoint}
+                    </div>
+                </div>
+            `).join('') : '<div style="color: #666; text-align: center; padding: 20px;">No volumes found</div>';
+            
+            document.getElementById('volume-details').innerHTML = volumeHtml;
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('infrastructure-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInfrastructureDetails();
+            }
+        });
+    </script>
+</body>
+</html>
